@@ -7,6 +7,9 @@ module.exports = async (req, res, next) => {
     try {
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
+        // normalize IPv6 localhost
+        if (ip === '::1') ip = '127.0.0.1';
+
         const key = `rate:${ip}`;
 
         //get current count

@@ -8,6 +8,7 @@ const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const healthRoute = require('./routes/health');
 const rateLimiter = require('./middleware/rateLimiter');
+const extractFeatures = require('./services/featureExtractor')
 
 const app = express();
 
@@ -40,6 +41,23 @@ async function startServer() {
     // test route
     app.get('/', (req, res) => {
       res.json({ message: 'API Gateway running!' });
+    });
+
+    app.get('/features/:ip', async (req, res) => {
+      try {
+        const features = await extractFeatures(req.params.ip);
+        res.json(features);
+      } catch (err) {
+        console.error("FEATURE ERROR:", err);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.get('/my-ip', (req, res) => {
+      res.json({
+        ip: req.ip,
+        raw: req.socket.remoteAddress
+      });
     });
 
     // error handler
