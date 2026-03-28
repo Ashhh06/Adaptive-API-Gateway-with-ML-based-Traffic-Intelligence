@@ -8,6 +8,7 @@ const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const healthRoute = require('./routes/health');
 const rateLimiter = require('./middleware/rateLimiter');
+const mlIntelligence = require('./middleware/mlIntelligence');
 const extractFeatures = require('./services/featureExtractor')
 
 const app = express();
@@ -24,6 +25,8 @@ async function startServer() {
 
     // logging
     app.use(logger);
+
+    app.use('/api', mlIntelligence);
 
     // rate limiter BEFORE routes
     console.log("Rate Limiter hit")
