@@ -12,7 +12,11 @@ const logSchema = new mongoose.Schema({
   decision: {
     type: String,
     enum: ['allowed', 'blocked']
-  }
+  },
+  mlLabel: {
+    type: String,
+    required: false,
+  },
 });
 
 //indexes for fast queries
