@@ -40,3 +40,7 @@ node_modules/
 venv/
 __pycache__/
 model/*.pkl
+
+
+Plan.txt
+project.md
