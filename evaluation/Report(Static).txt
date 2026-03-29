@@ -1,0 +1,43 @@
+ML_URL=http://127.0.0.1:8000/predict
+GATEWAY_URL=http://127.0.0.1:3000
+
+Measuring gateway latency...
+Measuring throughput...
+
+--- Evaluation summary ---
+
+1) ML classification (labeled suite)
+   Accuracy:                100.00%
+   Anomaly detection rate:   100.00%
+   False positive rate:      0.00%
+   FP count:                 0 / 4 normal cases
+
+2) Gateway latency
+   GET /health     mean=5.47 ms  p95=14.46 ms
+   GET /api/users  mean=4.93 ms  p95=9.39 ms
+   Overhead (API − health)   mean=+-0.54 ms  p95=+-5.07 ms
+
+3) Throughput (sequential /api/users)
+   80 req in 0.34 s → 237.6 req/s (ok=80 fail=0)
+
+4) Plan: Static RL vs Adaptive RL
+   Static:  low anomaly detection, latency low (re-run with ML_SERVICE_URL unset)
+   Adaptive: higher detection (see above), latency slightly higher (API vs /health)
+
+--- Per-case predictions ---
+   [OK] single log burst=1: expected=normal predicted=normal
+   [OK] very slow pair: expected=normal predicted=normal
+   [OK] steady user: expected=normal predicted=normal
+   [OK] upper normal band: expected=normal predicted=normal
+   [OK] borderline medium: expected=suspicious predicted=suspicious
+   [OK] suspicious mid: expected=suspicious predicted=suspicious
+   [OK] rpm+burst malicious: expected=malicious predicted=malicious
+   [OK] high rpm burst: expected=malicious predicted=malicious
+   [OK] scan-like: expected=malicious predicted=malicious
+   [OK] extreme rpm: expected=malicious predicted=malicious
+   [OK] max rpm: expected=malicious predicted=malicious
+   [OK] many endpoints + rpm: expected=malicious predicted=malicious
+   [OK] high error rate: expected=malicious predicted=malicious
+   [OK] error_rate threshold: expected=malicious predicted=malicious
+   [OK] tight burst + rpm: expected=malicious predicted=malicious
+   [OK] spiky low rpm: expected=suspicious predicted=suspicious
