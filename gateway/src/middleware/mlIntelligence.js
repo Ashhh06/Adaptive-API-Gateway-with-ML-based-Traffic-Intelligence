@@ -1,7 +1,7 @@
 const redis = require('../config/redis');
 const extractFeatures = require('../services/featureExtractor');
 const { predict: mlPredict } = require('../services/mlClient');
-
+const { applyPolicyFromLabel } = require('../services/dynamicLimit');
 
 function getClientIp(req) {
     let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -34,28 +34,27 @@ async function writeCache(ip, payload) {
     }
 }
 
-
 module.exports = async function mlIntelligence(req, res, next) {
+    const ip = getClientIp(req);
+
     if (!process.env.ML_SERVICE_URL) {
         req.mlLabel = 'normal';
+        await applyPolicyFromLabel(ip, req.mlLabel);
         return next();
     }
-    const ip = getClientIp(req);
+
     try {
         const cached = await readCache(ip);
         if (cached) {
             req.mlLabel = cached.label;
             req.mlConfidence = cached.confidence;
             req.mlFromCache = true;
-            if (cached.label === 'malicious') {
-                return res.status(403).json({ error: 'Forbidden', reason: 'traffic_blocked' });
-            }
+            await applyPolicyFromLabel(ip, req.mlLabel);
             return next();
         }
     } catch (e) {
         console.error('ML intelligence (cache):', e.message);
     }
-
 
     let features = null;
     try {
@@ -63,10 +62,13 @@ module.exports = async function mlIntelligence(req, res, next) {
     } catch (e) {
         console.error('ML features:', e.message);
     }
+
     if (!features) {
         req.mlLabel = 'normal';
+        await applyPolicyFromLabel(ip, req.mlLabel);
         return next();
     }
+
     const payload = {
         requests_per_minute: features.requests_per_minute,
         avg_inter_request_time: features.avg_inter_request_time,
@@ -74,6 +76,7 @@ module.exports = async function mlIntelligence(req, res, next) {
         error_rate: features.error_rate,
         burst_ratio: features.burst_ratio,
     };
+
     const result = await mlPredict(payload);
     let label = 'normal';
     let confidence = null;
@@ -81,13 +84,13 @@ module.exports = async function mlIntelligence(req, res, next) {
         label = result.label;
         confidence = result.confidence;
     }
+
     req.mlLabel = label;
     req.mlConfidence = confidence;
     req.mlFromCache = false;
+
     await writeCache(ip, { label, confidence });
-    if (label === 'malicious') {
-        return res.status(403).json({ error: 'Forbidden', reason: 'traffic_blocked' });
-    }
+    await applyPolicyFromLabel(ip, req.mlLabel);
+
     next();
 };
-
