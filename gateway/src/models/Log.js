@@ -17,9 +17,12 @@ const logSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  mlConfidence: {
+    type: Number,
+    required: false,
+  },
 });
 
-//indexes for fast queries
 logSchema.index({ ip: 1 });
 logSchema.index({ timestamp: 1 });
 

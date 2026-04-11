@@ -8,16 +8,21 @@ async function predict(featuresPayload) {
     const retries = parseInt(process.env.ML_MAX_RETRIES || '1', 10);
 
     let lastErr;
+    const debug = ['1', 'true', 'yes'].includes(String(process.env.ML_DEBUG || '').trim().toLowerCase());
+    const headers = { 'Content-Type': 'application/json' };
+    if (debug) headers['X-ML-Debug'] = '1';
+
     for(let attempt = 0; attempt <= retries; attempt++) {
         try {
             const { data } = await axios.post(url, featuresPayload, {
                 timeout: timeoutMs,
-                headers: { 'Content-Type': 'application/json' },
+                headers,
             });
             if (data && typeof data.label === 'string') {
                 return {
                     label: data.label,
                     confidence: typeof data.confidence === 'number' ? data.confidence : null,
+                    debug: debug && data.debug && typeof data.debug === 'object' ? data.debug : null,
                 };
             }
             return null;

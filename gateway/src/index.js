@@ -1,8 +1,11 @@
 require('dotenv').config();
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const connectDB = require('./config/db');
 
+const dashboardApi = require('./routes/dashboardApi');
 const proxy = require('./routes/proxy');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
@@ -17,31 +20,18 @@ async function startServer() {
   try {
     console.log("Starting server...");
 
-    //wait for DB
     await connectDB();
 
-    // built-in middleware
     app.use(express.json());
 
-    // logging
+    app.use('/api/dashboard', dashboardApi);
     app.use(logger);
-
     app.use('/api', mlIntelligence);
-
-    // rate limiter BEFORE routes
-    console.log("Rate Limiter hit")
     app.use(rateLimiter);
-
-    // routes
-    app.use('/api', (req, res, next) => {
-      console.log("/api route HIT");
-      next();
-    });
 
     app.use('/api', proxy);
     app.use('/health', healthRoute);
 
-    // test route
     app.get('/', (req, res) => {
       res.json({ message: 'API Gateway running!' });
     });
@@ -49,6 +39,11 @@ async function startServer() {
     app.get('/features/:ip', async (req, res) => {
       try {
         const features = await extractFeatures(req.params.ip);
+        if (!features) {
+          return res.status(404).json({
+            error: 'No traffic logs for this IP in the current window (60s). Hit /api first, then retry.',
+          });
+        }
         res.json(features);
       } catch (err) {
         console.error("FEATURE ERROR:", err);
@@ -63,7 +58,18 @@ async function startServer() {
       });
     });
 
-    // error handler
+    const dashboardDist = path.join(__dirname, '..', 'public', 'dashboard');
+    if (fs.existsSync(path.join(dashboardDist, 'index.html'))) {
+      app.use('/dashboard', express.static(dashboardDist));
+      app.use('/dashboard', (req, res, next) => {
+        if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+        const parts = req.path.split('/').filter(Boolean);
+        const last = parts[parts.length - 1] || '';
+        if (last.includes('.') && /\.[a-zA-Z0-9]+$/.test(last)) return next();
+        res.sendFile(path.join(dashboardDist, 'index.html'), (err) => next(err));
+      });
+    }
+
     app.use(errorHandler);
 
     const PORT = process.env.PORT || 3000;

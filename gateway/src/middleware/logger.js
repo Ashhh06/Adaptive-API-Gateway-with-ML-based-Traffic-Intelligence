@@ -1,6 +1,11 @@
 const Log = require('../models/Log');
 
 module.exports = (req, res, next) => {
+  const url = req.originalUrl || req.url || '';
+  if (url.startsWith('/api/dashboard')) {
+    return next();
+  }
+
   const start = Date.now();
 
   res.on('finish', async () => {
@@ -20,11 +25,11 @@ module.exports = (req, res, next) => {
       if (req.mlLabel) {
         logData.mlLabel = req.mlLabel;
       }
+      if (req.mlConfidence != null && typeof req.mlConfidence === 'number') {
+        logData.mlConfidence = req.mlConfidence;
+      }
 
-      //save to db
       await Log.create(logData);
-
-      // Console log (keep it)
       console.log(JSON.stringify(logData));
 
     } catch (err) {

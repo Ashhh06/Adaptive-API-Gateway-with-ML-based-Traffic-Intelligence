@@ -43,6 +43,8 @@ module.exports = async function mlIntelligence(req, res, next) {
         return next();
     }
 
+    const mlDebug = ['1', 'true', 'yes'].includes(String(process.env.ML_DEBUG || '').trim().toLowerCase());
+
     try {
         const cached = await readCache(ip);
         if (cached) {
@@ -50,6 +52,15 @@ module.exports = async function mlIntelligence(req, res, next) {
             req.mlConfidence = cached.confidence;
             req.mlFromCache = true;
             await applyPolicyFromLabel(ip, req.mlLabel);
+            if (mlDebug) {
+                console.log('[ML_DEBUG]', JSON.stringify({
+                    ip,
+                    path: req.originalUrl,
+                    fromCache: true,
+                    label: cached.label,
+                    confidence: cached.confidence,
+                }));
+            }
             return next();
         }
     } catch (e) {
@@ -66,6 +77,15 @@ module.exports = async function mlIntelligence(req, res, next) {
     if (!features) {
         req.mlLabel = 'normal';
         await applyPolicyFromLabel(ip, req.mlLabel);
+        if (mlDebug) {
+            console.log('[ML_DEBUG]', JSON.stringify({
+                ip,
+                path: req.originalUrl,
+                fromCache: false,
+                reason: 'no_features_window',
+                label: 'normal',
+            }));
+        }
         return next();
     }
 
@@ -88,6 +108,19 @@ module.exports = async function mlIntelligence(req, res, next) {
     req.mlLabel = label;
     req.mlConfidence = confidence;
     req.mlFromCache = false;
+
+    if (mlDebug) {
+        const line = {
+            ip,
+            path: req.originalUrl,
+            fromCache: false,
+            payload,
+            label,
+            confidence,
+        };
+        if (result && result.debug) line.mlService = result.debug;
+        console.log('[ML_DEBUG]', JSON.stringify(line));
+    }
 
     await writeCache(ip, { label, confidence });
     await applyPolicyFromLabel(ip, req.mlLabel);

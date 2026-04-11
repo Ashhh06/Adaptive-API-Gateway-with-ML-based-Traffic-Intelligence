@@ -13,12 +13,12 @@ Measuring throughput...
    FP count:                 0 / 4 normal cases
 
 2) Gateway latency
-   GET /health     mean=5.42 ms  p95=9.71 ms
-   GET /api/users  mean=9.70 ms  p95=13.59 ms
-   Overhead (API − health)   mean=+4.28 ms  p95=+3.88 ms
+   GET /health     mean=8.96 ms  p95=37.00 ms
+   GET /api/users  mean=7.11 ms  p95=12.97 ms
+   Overhead (API − health)   mean=+-1.85 ms  p95=+-24.03 ms
 
 3) Throughput (sequential /api/users)
-   80 req in 0.47 s → 171.8 req/s (ok=80 fail=0)
+   150 req in 0.75 s → 198.9 req/s (ok=100 fail=50)  [first fail: HTTP 429]
 
 4) Plan: Static RL vs Adaptive RL
    Static:  low anomaly detection, latency low (re-run with ML_SERVICE_URL unset)
@@ -41,3 +41,4 @@ Measuring throughput...
    [OK] error_rate threshold: expected=malicious predicted=malicious
    [OK] tight burst + rpm: expected=malicious predicted=malicious
    [OK] spiky low rpm: expected=suspicious predicted=suspicious
+

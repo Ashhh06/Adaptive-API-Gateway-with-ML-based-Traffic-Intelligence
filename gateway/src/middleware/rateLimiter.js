@@ -4,6 +4,11 @@ const { getEffectiveMax } = require('../services/dynamicLimit');
 const WINDOW_SIZE = parseInt(process.env.RATE_LIMIT_WINDOW, 10);
 
 module.exports = async (req, res, next) => {
+    const url = req.originalUrl || req.url || '';
+    if (url.startsWith('/api/dashboard')) {
+        return next();
+    }
+
     try {
         let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
         if (typeof ip === 'string' && ip.includes(',')) {

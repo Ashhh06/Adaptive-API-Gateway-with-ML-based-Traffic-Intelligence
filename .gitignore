@@ -1,46 +1,42 @@
-# =========================
-# Root
-# =========================
+# dependencies
 node_modules/
 
-# =========================
-# Backend
-# =========================
-backend/node_modules/
-backend/.env
+# env and secrets (never commit real values)
+.env
+.env.*
+!.env.example
+!**/.env.example
 
-# =========================
-# Gateway
-# =========================
-gateway/node_modules/
-gateway/.env
+# python (ml-service)
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.pytest_cache/
+.mypy_cache/
 
-# =========================
-# Logs
-# =========================
+# logs / temp
 *.log
+*.tmp
+*.save
 
-# =========================
-# OS / Editor
-# =========================
+# os / editor
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
+.vscode/
 
-# =========================
-# Temporary / test files
-# =========================
-*.save
-*.tmp
+# dashboard: vite output + bundle copied into gateway (rebuild after clone)
+dashboard/dist/
+gateway/public/dashboard/
 
+# ml training data (large; download CIC / extract zips locally — see ml-service/dataset/README.md)
+ml-service/dataset/**/*.csv
+ml-service/dataset/**/*.zip
 
-node_modules/
-.env
-venv/
-__pycache__/
-model/*.pkl
-
-
+# local notes 
 Plan.txt
 project.md

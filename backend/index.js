@@ -4,7 +4,17 @@ const app = express();
 
 app.use(express.json());
 
-//example endpoint
+app.get('/api', (req, res) => {
+    res.json({ message: 'Backend OK', status: 'ok' });
+});
+app.get('/api/', (req, res) => {
+    res.json({ message: 'Backend OK', status: 'ok' });
+});
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Backend root', try: ['/api', '/api/', '/users', '/slow', '/error'] });
+});
+
 app.get('/users', (req, res) => {
     res.json({
         message: 'Users fetched successfully',
@@ -12,7 +22,6 @@ app.get('/users', (req, res) => {
     });
 });
 
-//simulate delay endpoint
 app.get('/slow', (req, res) => {
     setTimeout(() => {
         res.json({
@@ -21,7 +30,6 @@ app.get('/slow', (req, res) => {
     }, 3000);
 });
 
-//simulate error
 app.get('/error', (req, res) => {
     res.status(500).json({ error : 'Backend error' });
 });

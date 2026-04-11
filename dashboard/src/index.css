@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --muted: #64748b;
+  --text: #0f172a;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --c-normal: #16a34a;
+  --c-suspicious: #ca8a04;
+  --c-malicious: #dc2626;
+  --chart-grid: #e2e8f0;
+}
+
+.dark {
+  --bg: #0b0f17;
+  --surface: #111827;
+  --border: #1f2937;
+  --muted: #94a3b8;
+  --text: #f1f5f9;
+  --accent: #3b82f6;
+  --accent-soft: #1e3a5f;
+  --c-normal: #4ade80;
+  --c-suspicious: #facc15;
+  --c-malicious: #f87171;
+  --chart-grid: #1f2937;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+@layer utilities {
+  .card-surface {
+    @apply rounded-2xl border shadow-sm;
+    background: var(--surface);
+    border-color: var(--border);
+  }
+}
