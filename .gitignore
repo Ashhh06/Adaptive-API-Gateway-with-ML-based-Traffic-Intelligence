@@ -37,6 +37,9 @@ gateway/public/dashboard/
 ml-service/dataset/**/*.csv
 ml-service/dataset/**/*.zip
 
+# trained rf is huge; github limit 100mb — regenerate with train_cic_gateway_features.py (scaler.pkl is small and may be committed)
+ml-service/model/model.pkl
+
 # local notes 
 Plan.txt
 project.md

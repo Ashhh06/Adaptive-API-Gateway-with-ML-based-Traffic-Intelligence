@@ -68,7 +68,7 @@ npm run dev
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-Needs `model/model.pkl` and `model/scaler.pkl`. Regenerate with `python train_cic_gateway_features.py` after you put CIC 2017 CSVs under `ml-service/dataset/` (CSVs/zips are **gitignored** — see `ml-service/dataset/README.md` and the training script for expected columns).
+Needs `model/model.pkl` and `model/scaler.pkl`. **`model.pkl` is not on GitHub** (100 MB limit). After clone, train with `python train_cic_gateway_features.py` and CIC CSVs under `ml-service/dataset/` (see `ml-service/dataset/README.md`, `ml-service/model/README.md`). `scaler.pkl` may be in the repo; you still need `model.pkl` to run the API.
 
 **Dashboard** — dev UI with Vite proxy to the gateway:
 

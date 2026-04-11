@@ -1,0 +1,1 @@
+`model.pkl` is not in git (too large for GitHub). Train locally: from `ml-service/` run `python train_cic_gateway_features.py` after adding data under `dataset/` (see `dataset/README.md`). `scaler.pkl` is committed when present; if you clone fresh you still need `model.pkl` from training.
